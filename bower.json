@@ -16,6 +16,7 @@
     "bootstrap": "~3.1.1",
     "d3": "~3.4.6",
     "underscore": "~1.6.0",
-    "nvd3": "~1.1.15-beta"
+    "nvd3": "~1.1.15-beta",
+    "knockout.js": "~3.0.0"
   }
 }
