@@ -26,6 +26,13 @@
 </head>
 <body>
 
+<div>
+    <form>
+        <input data-bind="value: url" />
+        <button data-bind="click: load">Load</button>
+    </form>
+</div>
+
 <div id="chart">
     <svg></svg>
 </div>
@@ -38,70 +45,84 @@
 <script src="bower_components/d3/d3.min.js"></script>
 <script src="bower_components/underscore/underscore.js"></script>
 <script src="bower_components/nvd3/nv.d3.min.js"></script>
+<script src="bower_components/knockout.js/knockout.js"></script>
 
 <script>
     $(function() {
-        console.log("Loading");
-        var url = "http://localhost:8080/render?from=-12hours&until=now&target=sinFunction(\"fake.sin.1\",1)&target=sinFunction(\"fake.sin.2\",2)&format=json";
-        d3.json(url, function(targets) {
-            console.dir(targets);
-            function datapointsToPairs(datapoints) {
-                function removePairsWithMissingData(pairs) {
-                    return _.filter(pairs, function(pair) { return (pair[0] != null) && (pair[1] != null); });
-                }
+        function load(url) {
+            console.log("Loading " + url);
 
-                var values = _.map(datapoints, function(datapoint) { return datapoint[0]; });
-                var offsetValues = _.last(values, values.length - 1).concat([null]);
-                var pairs = _.zip(values, offsetValues);
+            d3.json(url, function(targets) {
+                console.dir(targets);
+                function datapointsToPairs(datapoints) {
+                    function removePairsWithMissingData(pairs) {
+                        return _.filter(pairs, function(pair) { return (pair[0] != null) && (pair[1] != null); });
+                    }
 
-                return removePairsWithMissingData(pairs);
-            };
-            var seriesArray = _.reduce(targets,
-                    function(array, target){
-                        array.push({
-                            name: target.target,
-                            pairs: datapointsToPairs(target.datapoints)
-                        });
-                        return array;
-                    },
-                    []);
-            console.dir(seriesArray);
+                    var values = _.map(datapoints, function(datapoint) { return datapoint[0]; });
+                    var offsetValues = _.last(values, values.length - 1).concat([null]);
+                    var pairs = _.zip(values, offsetValues);
 
-            function datum(seriesArray) {
-                return _.map(seriesArray, function(series) {
-                    var group = {
-                        key: series.name,
-                        values: _.map(series.pairs, function(pair) {
-                            return {
-                                x: pair[0],
-                                y: pair[1]
-                            };
-                        })
-                    };
-                    return group;
+                    return removePairsWithMissingData(pairs);
+                };
+                var seriesArray = _.reduce(targets,
+                        function(array, target){
+                            array.push({
+                                name: target.target,
+                                pairs: datapointsToPairs(target.datapoints)
+                            });
+                            return array;
+                        },
+                        []);
+                console.dir(seriesArray);
+
+                function datum(seriesArray) {
+                    return _.map(seriesArray, function(series) {
+                        var group = {
+                            key: series.name,
+                            values: _.map(series.pairs, function(pair) {
+                                return {
+                                    x: pair[0],
+                                    y: pair[1]
+                                };
+                            })
+                        };
+                        return group;
+                    });
+                };
+
+                nv.addGraph(function() {
+                    var chart = nv.models.scatterChart()
+                            .showDistX(true)
+                            .showDistY(true)
+                            .color(d3.scale.category10().range());
+
+                    chart.xAxis.tickFormat(d3.format('.02f'));
+                    chart.yAxis.tickFormat(d3.format('.02f'));
+
+                    d3.select('#chart svg')
+                            .datum(datum(seriesArray))
+                            .transition().duration(500)
+                            .call(chart);
+
+                    nv.utils.windowResize(chart.update);
+
+                    return chart;
                 });
-            };
 
-            nv.addGraph(function() {
-                var chart = nv.models.scatterChart()
-                        .showDistX(true)
-                        .showDistY(true)
-                        .color(d3.scale.category10().range());
-
-                chart.xAxis.tickFormat(d3.format('.02f'));
-                chart.yAxis.tickFormat(d3.format('.02f'));
-
-                d3.select('#chart svg')
-                        .datum(datum(seriesArray))
-                        .transition().duration(500)
-                        .call(chart);
-
-                nv.utils.windowResize(chart.update);
-
-                return chart;
             });
+        };
 
-        });
+        var model = {
+            url: "http://localhost:8080/render?from=-12hours&until=now&target=sinFunction(\"fake.sin.1\",1)&target=sinFunction(\"fake.sin.2\",2)&format=json"
+        };
+        model.load = function() {
+            load(model.url);
+        };
+
+        model.load();
+
+        ko.applyBindings(model);
     });
 </script>
 </body>
