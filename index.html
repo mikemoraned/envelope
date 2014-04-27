@@ -25,13 +25,31 @@
 <script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
 
 <script src="bower_components/d3/d3.min.js"></script>
+<script src="bower_components/underscore/underscore.js"></script>
 
 <script>
     $(function() {
         console.log("Loading");
-        d3.json("http://localhost:8080/render?from=-2hours&until=now&width=400&height=250&target=carbon.agents.graphite-a.cpuUsage&format=json", function(data) {
-            console.dir(data);
-            
+        d3.json("http://localhost:8080/render?from=-2hours&until=now&width=400&height=250&target=carbon.agents.graphite-a.cpuUsage&format=json", function(targets) {
+            console.dir(targets);
+            function datapointsToPairs(datapoints) {
+                function removePairsWithMissingData(pairs) {
+                    return _.filter(pairs, function(pair) { return (pair[0] != null) && (pair[1] != null); });
+                }
+
+                var values = _.map(datapoints, function(datapoint) { return datapoint[0]; });
+                var offsetValues = _.last(values, values.length - 1).concat([null]);
+                var pairs = _.zip(values, offsetValues);
+
+                return removePairsWithMissingData(pairs);
+            };
+            var seriesMap = _.reduce(targets,
+                    function(map, target){
+                        map[target.target] = datapointsToPairs(target.datapoints);
+                        return map;
+                    },
+                    {});
+            console.dir(seriesMap);
         });
     });
 </script>
