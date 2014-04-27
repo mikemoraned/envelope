@@ -61,6 +61,7 @@
                     <div class="form-group">
                         <label for="url">Full Graphite URL</label>
                         <input class="form-control" id="url" data-bind="value: url" placeholder="Enter URL">
+                        <span class="help-block">Note that you have to <a href="http://enable-cors.org/">enable CORS</a> in Graphite Web for this to work.</span>
                     </div>
                     <button type="submit" class="btn btn-default" data-bind="click: load">Show envelopes</button>
                 </form>
@@ -150,7 +151,7 @@
         };
 
         var model = {
-            url: "http://localhost:8080/render?from=-12hours&until=now&target=sinFunction(\"fake.sin.1\",1)&target=sinFunction(\"fake.sin.2\",2)&format=json"
+            url: "http://localhost:8080/render?from=-12hours&until=now&target=sinFunction(\"fake.sin.1\",1)&target=sinFunction(\"fake.sin.2\",2)"
         };
         model.load = function() {
             load(model.url + "&format=json");
