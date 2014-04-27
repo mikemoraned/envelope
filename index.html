@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Bootstrap 101 Template</title>
+    <title>Envelope</title>
 
     <!-- Bootstrap -->
     <link href="bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -23,5 +23,17 @@
 <script src="bower_components/jquery/dist/jquery.min.js"></script>
 <!-- Include all compiled plugins (below), or include individual files as needed -->
 <script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+
+<script src="bower_components/d3/d3.min.js"></script>
+
+<script>
+    $(function() {
+        console.log("Loading");
+        d3.json("http://localhost:8080/render?from=-2hours&until=now&width=400&height=250&target=carbon.agents.graphite-a.cpuUsage&format=json", function(data) {
+            console.dir(data);
+            
+        });
+    });
+</script>
 </body>
 </html>
