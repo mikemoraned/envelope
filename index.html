@@ -157,6 +157,10 @@
             load(model.url + "&format=json");
         };
 
+        if (window.location.hash) {
+            model.url = window.location.hash.substring(1);
+        }
+
         model.load();
 
         ko.applyBindings(model);
