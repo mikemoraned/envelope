@@ -70,6 +70,51 @@
             <div id="chart">
                 <svg></svg>
             </div>
+
+            <h2>What is this doing?</h2>
+
+            <p>Graphite shows a time series, with datapoints some fixed unit apart. All I'm doing is taking the following,
+
+            <table class="table">
+                <tr>
+                    <td>time1</td><td>time2</td><td>time3</td><td>&hellip;</td>
+                </tr>
+                <tr>
+                    <td>value1</td><td>value2</td><td>value3</td><td>&hellip;</td>
+                </tr>
+            </table>
+
+            producing pairs from each value,
+
+            <table class="table">
+                <tr>
+                    <td>value1, value2</td><td>value2, value3</td><td>value3, &hellip;</td><td>&hellip;</td>
+                </tr>
+            </table>
+
+            and then turning each pair into an x, y point,
+
+            <table class="table">
+                <tr>
+                    <td>x: value1, y: value2</td><td>x: value2, y: value3</td><td>x: value3, &hellip;</td><td>&hellip;</td>
+                </tr>
+            </table>
+
+            </p>
+
+            <p>There is almost certainly a proper word for this technique, but I don't know what it is (off the top of my head). I certainly don't imagine any of this is original; I first
+                remember seeing something like this technique in the <a href="http://www.amazon.co.uk/Chaos-Making-Science-James-Gleick/dp/0749386061">Chaos book by James Gleick</a>.</p>
+
+            <h2>But what use is this?</h2>
+
+            <p>
+                Typically, there are many things you can graph which have some sort of cyclical pattern. Drawn as a time series, these show
+                up as a wave of some kind, varying left to right. If you transform these as described above, you should get a curve on the graph.
+            </p>
+
+            <p>My intent is to explore how viewing the data this way allows you to make some conclusions more easy e.g. "the data typically has this maximum and minimum".
+            Feedback gladly accepted via <a href="https://twitter.com/mike_moran">@mike_moran on Twitter</a></p>
+
         </div>
 
     </div><!-- /.container -->
@@ -84,87 +129,6 @@
     <script src="bower_components/nvd3/nv.d3.min.js"></script>
     <script src="bower_components/knockout.js/knockout.js"></script>
 
-<script>
-    $(function() {
-        function load(url) {
-            console.log("Loading " + url);
-
-            d3.json(url, function(targets) {
-                console.dir(targets);
-                function datapointsToPairs(datapoints) {
-                    function removePairsWithMissingData(pairs) {
-                        return _.filter(pairs, function(pair) { return (pair[0] != null) && (pair[1] != null); });
-                    }
-
-                    var values = _.map(datapoints, function(datapoint) { return datapoint[0]; });
-                    var offsetValues = _.last(values, values.length - 1).concat([null]);
-                    var pairs = _.zip(values, offsetValues);
-
-                    return removePairsWithMissingData(pairs);
-                };
-                var seriesArray = _.reduce(targets,
-                        function(array, target){
-                            array.push({
-                                name: target.target,
-                                pairs: datapointsToPairs(target.datapoints)
-                            });
-                            return array;
-                        },
-                        []);
-                console.dir(seriesArray);
-
-                function datum(seriesArray) {
-                    return _.map(seriesArray, function(series) {
-                        var group = {
-                            key: series.name,
-                            values: _.map(series.pairs, function(pair) {
-                                return {
-                                    x: pair[0],
-                                    y: pair[1]
-                                };
-                            })
-                        };
-                        return group;
-                    });
-                };
-
-                nv.addGraph(function() {
-                    var chart = nv.models.scatterChart()
-                            .showDistX(true)
-                            .showDistY(true)
-                            .color(d3.scale.category10().range());
-
-                    chart.xAxis.tickFormat(d3.format('.02f'));
-                    chart.yAxis.tickFormat(d3.format('.02f'));
-
-                    d3.select('#chart svg')
-                            .datum(datum(seriesArray))
-                            .transition().duration(500)
-                            .call(chart);
-
-                    nv.utils.windowResize(chart.update);
-
-                    return chart;
-                });
-
-            });
-        };
-
-        var model = {
-            url: "http://localhost:8080/render?from=-12hours&until=now&target=sinFunction(\"fake.sin.1\",1)&target=sinFunction(\"fake.sin.2\",2)"
-        };
-        model.load = function() {
-            load(model.url + "&format=json");
-        };
-
-        if (window.location.hash) {
-            model.url = window.location.hash.substring(1);
-        }
-
-        model.load();
-
-        ko.applyBindings(model);
-    });
-</script>
+    <script src="index.js"></script>
 </body>
 </html>
