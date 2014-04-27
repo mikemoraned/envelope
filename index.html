@@ -17,7 +17,11 @@
     <![endif]-->
 
     <link href="bower_components/nvd3/nv.d3.min.css" rel="stylesheet">
+
     <style>
+        body {
+            padding-top: 50px;
+        }
         #chart svg {
             height: 400px;
         }
@@ -26,26 +30,58 @@
 </head>
 <body>
 
-<div>
-    <form>
-        <input data-bind="value: url" />
-        <button data-bind="click: load">Load</button>
-    </form>
-</div>
+    <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#">Envelope</a>
+            </div>
+            <div class="collapse navbar-collapse">
+                <ul class="nav navbar-nav">
+                    <li class="active"><a href="">Home</a></li>
+                    <li><a href="https://github.com/mikemoraned/envelope">About</a></li>
+                </ul>
+            </div><!--/.nav-collapse -->
+        </div>
+    </div>
 
-<div id="chart">
-    <svg></svg>
-</div>
+    <div class="container">
 
-<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-<script src="bower_components/jquery/dist/jquery.min.js"></script>
-<!-- Include all compiled plugins (below), or include individual files as needed -->
-<script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+        <div class="starter-template">
+            <h1>Envelope display</h1>
+            <p class="lead">A small experiment in showing the bounds of your time series, where time is implicit</p>
 
-<script src="bower_components/d3/d3.min.js"></script>
-<script src="bower_components/underscore/underscore.js"></script>
-<script src="bower_components/nvd3/nv.d3.min.js"></script>
-<script src="bower_components/knockout.js/knockout.js"></script>
+            <div>
+                <form>
+                    <div class="form-group">
+                        <label for="url">Full Graphite URL</label>
+                        <input class="form-control" id="url" data-bind="value: url" placeholder="Enter URL">
+                    </div>
+                    <button type="submit" class="btn btn-default" data-bind="click: load">Show envelopes</button>
+                </form>
+            </div>
+
+            <div id="chart">
+                <svg></svg>
+            </div>
+        </div>
+
+    </div><!-- /.container -->
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="bower_components/jquery/dist/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+
+    <script src="bower_components/d3/d3.min.js"></script>
+    <script src="bower_components/underscore/underscore.js"></script>
+    <script src="bower_components/nvd3/nv.d3.min.js"></script>
+    <script src="bower_components/knockout.js/knockout.js"></script>
 
 <script>
     $(function() {
