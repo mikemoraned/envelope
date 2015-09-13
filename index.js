@@ -4,17 +4,36 @@ $(function() {
 
         d3.json(url, function(targets) {
             console.dir(targets);
-            function datapointsToPairs(datapoints) {
-                function removePairsWithMissingData(pairs) {
-                    return _.filter(pairs, function(pair) { return (pair[0] != null) && (pair[1] != null); });
-                }
+            // function datapointsToPairs(datapoints) {
+            //     function removePairsWithMissingData(pairs) {
+            //         return _.filter(pairs, function(pair) { return (pair[0] != null) && (pair[1] != null); });
+            //     }
 
-                var values = _.map(datapoints, function(datapoint) { return datapoint[0]; });
-                var offsetValues = _.last(values, values.length - 1).concat([null]);
-                var pairs = _.zip(values, offsetValues);
+            //     var values = _.map(datapoints, function(datapoint) { return datapoint[0]; });
+            //     var offsetValues = _.last(values, values.length - 1).concat([null]);
+            //     var pairs = _.zip(values, offsetValues);
 
-                return removePairsWithMissingData(pairs);
+            //     return removePairsWithMissingData(pairs);
+            // };
+	    function datapointsToPairs(datapoints) {
+                var withData = _.filter(datapoints, function(d) { return d[0] != null; });
+                var timeOnly = _.map(withData, function(d) { return d[1]; });		
+                var pairs = _.map(timeOnly, function(curr, i, all) {
+		    var prev = i > 0 ? all[i-1] : curr;
+		    var next = i < all.length - 1 ? all[i+1] : curr;
+		    var prevDiff = curr - prev;
+		    var nextDiff = next - curr;
+		    return [prevDiff, nextDiff];
+		});
+
+		console.log("Time diffs");
+		console.dir(withData);
+		console.dir(timeOnly);		
+		console.dir(pairs);
+		
+                return pairs;
             };
+
             var seriesArray = _.reduce(targets,
                 function(array, target){
                     array.push({
